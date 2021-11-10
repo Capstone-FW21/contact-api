@@ -1,17 +1,7 @@
-# Python image to use.
-FROM python:3.8
-
-# Set the working directory to /app
-WORKDIR /contact-api
-
-# copy the requirements file used for dependencies
-COPY requirements.txt .
-
-# Copy the rest of the working directory contents into the container at /app
-COPY . .
-
-# Install any needed packages specified in requirements.txt
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
-
-
-CMD exec uvicorn main:app --host 0.0.0.0 --port 8080
+FROM python:3.7-slim
+ENV APP_HOME /contact-api
+WORKDIR $APP_HOME
+COPY . ./
+RUN pip install pipenv
+RUN pipenv install --deploy --system
+CMD exec gunicorn --bind :$PORT --workers 1 --worker-class uvicorn.workers.UvicornWorker  --threads 8 app.main:app
