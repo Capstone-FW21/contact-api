@@ -7,11 +7,11 @@ WORKDIR /contact-api
 # copy the requirements file used for dependencies
 COPY requirements.txt .
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
-
 # Copy the rest of the working directory contents into the container at /app
 COPY . .
 
-# Run app.py when the container launches
-ENTRYPOINT ["uvicorn", "main:app", "--host 0.0.0.0", "--port 8080"]
+# Install any needed packages specified in requirements.txt
+RUN pip install --trusted-host pypi.python.org -r requirements.txt
+
+
+CMD exec uvicorn main:app --host 0.0.0.0 --port 8080
