@@ -23,22 +23,6 @@ async def get_student():
 async def read_trace(building: str, room: str):
     return {"building": building, "room": room}
 
-
-@app.get("/demo_get/{demo_arg}/")
-def demo_get(demo_arg: str):
-    """
-    Place holder GET request method stub.
-    """
-    return demo_arg
-
-
-@app.post("/demo_post/{demo_arg}/")
-def demo_post(demo_arg: str):
-    """
-    Place holder PUT request method stub.
-    """
-    return "OK"
-
 @app.post("/record_data/")
 async def store_data(building: str, room: str, first: str, last: str, student_id: int): #seat data and date/time maybe?
     #write to database/invoke method to write to database
