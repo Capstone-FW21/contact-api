@@ -1,5 +1,6 @@
 import fastapi
 import sys
+import names
 from fastapi import FastAPI, status
 from typing import Optional, List
 from sarge import capture_stdout
@@ -7,13 +8,20 @@ from sarge import capture_stdout
 
 app = FastAPI()
 
-
 @app.get("/", include_in_schema=False)
 def index():
     """
     Main index redirects to the Documentation.
     """
     return fastapi.responses.RedirectResponse(url="./docs")
+
+@app.get("/student/")
+async def get_student():
+    return names.get_first_name() , names.get_last_name()
+
+@app.get("/class/")
+async def read_trace(building: str, room: str):
+    return {"building": building, "room": room}
 
 
 @app.get("/demo_get/{demo_arg}/")
@@ -31,6 +39,10 @@ def demo_post(demo_arg: str):
     """
     return "OK"
 
+@app.post("/record_data/")
+async def store_data(building: str, room: str, first: str, last: str): #seat data and date/time maybe?
+    #write to database/invoke method to write to database
+    return "OK"
 
 @app.get(
     "/versions",
