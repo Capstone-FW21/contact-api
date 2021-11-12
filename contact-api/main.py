@@ -40,7 +40,7 @@ def demo_post(demo_arg: str):
     return "OK"
 
 @app.post("/record_data/")
-async def store_data(building: str, room: str, first: str, last: str): #seat data and date/time maybe?
+async def store_data(building: str, room: str, first: str, last: str, student_id: int): #seat data and date/time maybe?
     #write to database/invoke method to write to database
     return "OK"
 
