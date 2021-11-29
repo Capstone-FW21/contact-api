@@ -16,15 +16,15 @@ def index():
     return fastapi.responses.RedirectResponse(url="./docs")
 
 @app.get("/student/")
-async def get_student():
+def get_student():
     return names.get_first_name() , names.get_last_name()
 
 @app.get("/class/")
-async def read_trace(building: str, room: str):
+def read_trace(building: str, room: str):
     return {"building": building, "room": room}
 
 @app.post("/record_data/")
-async def store_data(building: str, room: str, first: str, last: str, student_id: int): #seat data and date/time maybe?
+def store_data(building: str, room: str, first: str, last: str, student_id: int): #seat data and date/time maybe?
     #write to database/invoke method to write to database
     return "OK"
 
