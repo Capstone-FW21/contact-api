@@ -8,13 +8,14 @@ from enum import Enum
 
 app = FastAPI()
 
-#to ensure only valid types are passed in
+# to ensure only valid types are passed in
+
+
 class StatTypes(str, Enum):
     students = "students"
     records = "records"
     buildings = "buildings"
     rooms = "rooms"
-
 
 
 @app.get("/", include_in_schema=False)
@@ -27,19 +28,25 @@ def index():
 
 @app.get("/records/")
 def read_trace():
+    # invoke db function get_all_users(), limit to 100
+    # return the list
     return
 
-#check the /class/ in main.py to see how to add query parameters "/breakout/?email=bob@gmail.com&data=<....>"
+# check the /class/ in main.py to see how to add query parameters "/breakout/?email=bob@gmail.com&data=<....>"
+
+
 @app.get("/breakout/")
-def read_trace():
+def read_trace(email: str, date: str):
+    #contacted = db_f(email, date)
+    # return contacted
     return
 
 
 @app.get("/stats/")
 def read_trace(type: StatTypes):
-    #access database for valid stats
+    # access database for valid stats
     #stats = databasefunction(StatTypes)
-    #return stats
+    # return stats
     return
 
 
