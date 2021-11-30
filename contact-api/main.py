@@ -8,6 +8,7 @@ from sarge import capture_stdout
 
 app = FastAPI()
 
+
 @app.get("/", include_in_schema=False)
 def index():
     """
@@ -15,18 +16,22 @@ def index():
     """
     return fastapi.responses.RedirectResponse(url="./docs")
 
+
 @app.get("/student/")
 def get_student():
-    return names.get_first_name() , names.get_last_name()
+    return names.get_first_name(), names.get_last_name()
+
 
 @app.get("/class/")
 def read_trace(building: str, room: str):
     return {"building": building, "room": room}
 
+
 @app.post("/record_data/")
-def store_data(building: str, room: str, first: str, last: str, student_id: int): #seat data and date/time maybe?
-    #write to database/invoke method to write to database
+def store_data(building: str, room: str, email: str):  # seat data and date/time maybe?
+    # write to database/invoke method to write to database
     return "OK"
+
 
 @app.get(
     "/versions",
