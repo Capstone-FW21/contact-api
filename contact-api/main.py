@@ -19,6 +19,7 @@ def index():
 
 @app.get("/student/")
 def get_student():
+    # return add_person(names.get_first_name(), names.get_last_name(), 1)
     return names.get_first_name(), names.get_last_name()
 
 
@@ -27,7 +28,7 @@ def read_trace(building: str, room: str):
     return {"building": building, "room": room}
 
 
-@app.post("/record_data/")
+@app.post("/record_data/", status_code=status.HTTP_201_CREATED)
 def store_data(building: str, room: str, email: str):  # seat data and date/time maybe?
     # write to database/invoke method to write to database
     return "OK"
