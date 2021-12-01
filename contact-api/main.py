@@ -1,6 +1,7 @@
 import fastapi
 import sys
 import names
+import ctdb_utility_lib
 from fastapi import FastAPI, status
 from typing import Optional, List
 from sarge import capture_stdout
@@ -19,8 +20,8 @@ def index():
 
 @app.get("/student/")
 def get_student():
-    # return add_person(names.get_first_name(), names.get_last_name(), 1)
-    return names.get_first_name(), names.get_last_name()
+    return add_person(names.get_first_name(), names.get_last_name(), 1)
+    # return names.get_first_name(), names.get_last_name()
 
 
 @app.get("/class/")
