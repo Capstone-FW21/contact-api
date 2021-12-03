@@ -1,14 +1,15 @@
+from ctdb_utility_lib.utility import add_person, add_scan
 import fastapi
 import sys
 import names
-import ctdb_utility_lib
+import random
 from fastapi import FastAPI, status
 from typing import Optional, List
 from sarge import capture_stdout
 
 
 app = FastAPI()
-
+random.seed(34652346)
 
 @app.get("/", include_in_schema=False)
 def index():
@@ -20,8 +21,10 @@ def index():
 
 @app.get("/student/")
 def get_student():
-    return add_person(names.get_first_name(), names.get_last_name(), 1)
-    # return names.get_first_name(), names.get_last_name()
+    email = add_person(names.get_first_name(), names.get_last_name(), random.randint(0,9999999))
+    if email is None:
+        raise fastapi.HTTPException(status_code=400, detail="person already exists")
+    return email
 
 
 @app.get("/class/")
@@ -30,8 +33,10 @@ def read_trace(building: str, room: str):
 
 
 @app.post("/record_data/", status_code=status.HTTP_201_CREATED)
-def store_data(building: str, room: str, email: str):  # seat data and date/time maybe?
-    # write to database/invoke method to write to database
+def store_data(email: str, room_id: str):
+    response = add_scan(email, room_id)
+    if response == -1:
+        raise fastapi.HTTPException(status_code=400, detail="invalid email format")
     return "OK"
 
 
