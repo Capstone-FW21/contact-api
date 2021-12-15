@@ -27,8 +27,8 @@ def index():
 
 
 @app.get("/records/")
-def read_trace():
-    # invoke db function get_all_users(), limit to 100
+def read_trace(limit: int, email: str):
+    # invoke db function db(limit, email)
     # return the list
     return
 
