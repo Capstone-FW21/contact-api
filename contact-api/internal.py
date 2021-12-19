@@ -1,3 +1,4 @@
+from ctdb_utility_lib.utility import get_person
 import fastapi
 import sys
 from fastapi import FastAPI, status
@@ -27,10 +28,12 @@ def index():
 
 
 @app.get("/records/")
-def read_trace(limit: int, email: str):
-    # invoke db function db(limit, email)
-    # return the list
-    return
+def read_trace(email: str):  # Could add limitation
+    records = get_person(email)
+    if records == -1:
+        raise fastapi.HTTPException(
+            status_code=400, detail="person doesn't exists")
+    return records
 
 # check the /class/ in main.py to see how to add query parameters "/breakout/?email=bob@gmail.com&data=<....>"
 
