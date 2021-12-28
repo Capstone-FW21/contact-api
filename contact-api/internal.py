@@ -28,19 +28,31 @@ def index():
 
 
 @app.get("/records/")
-def read_trace(email: str):  # Could add limitation
-    records = get_person(email)
-    if records == -1:
-        raise fastapi.HTTPException(
-            status_code=400, detail="person doesn't exists")
-    return records
+def read_trace(email: str, limit: int):  # Could add limitation
+    #records = get_records(email, limit)
+    # SQL: SELECT * FROM scan WHERE person_email = '{email}' ORDER BY scan_time DESC LIMIT '{limit}'
+    # if records == -1:
+    # raise fastapi.HTTPException(
+    # status_code=400, detail="person doesn't exists")
+    # return records
+    return
 
 # check the /class/ in main.py to see how to add query parameters "/breakout/?email=bob@gmail.com&data=<....>"
 
 
 @app.get("/breakout/")
 def read_trace(email: str, date: str):
-    #contacted = db_f(email, date)
+    # contacted = breakout(email, contacted_date)
+    # In breakout():
+    # find the rooms of the person had been in last 7 days
+    # SQL: rooms = SELCET room_id FROM scan WHERE person_email = '{email}'
+
+    # find the time from last 7 days
+    # bottom_range = contacted_date - datetime.timedelta(days=7)
+    # SOL: SELECT person_email FROM scan WHERE person_email =! '{email}'
+    #     AND room_id = '{rooms}'
+    #     AND scan_time.date() >= bottom_range.date()
+
     # return contacted
     return
 
@@ -48,7 +60,37 @@ def read_trace(email: str, date: str):
 @app.get("/stats/")
 def read_trace(type: StatTypes):
     # access database for valid stats
-    #stats = databasefunction(StatTypes)
+    # stats = databasefunction(StatTypes)
+
+    # 'student type'
+    # return a list of student, # of student, record of each student
+    # list of student & record of each = SELECT person_email, count(person_email)
+    #                                    FROM scan
+    #                                    GROUP by person_email
+    # # of student = SELECT COUNT(*) FROM people
+
+    # 'records type'
+    # return # of records
+    # SQL: SELECT count(*) FROM scan
+
+    # 'buildings type'
+    # return a list of buildings, # of rooms in each building, # of records of each building, # of student visited each building
+    # list of building & # of rooms:
+    # SELECT building_name, count(building_name) FROM room GROUP by building_name
+    #
+    # # of records of each building:
+    # SELECT r.building_name, count(s.room_id) FROM scan s, room r WHERE s.room_id == r.room_id GROUP by r.building_name
+    #
+    # # of students has visited this building:
+    # SELECT r.building_name, count(DISTINCT s.person_email) FROM scan s, room r WHERE s.room_id == r.room_id GROUP by r.building_name
+
+    # 'rooms type'
+    # return a list of rooms with # of student visited, # of records in each room & the building it belongs
+    # a list of rooms with # of student visited:
+    # SELECT r.room_id, count(DISTINCT s.person_email) FROM scan s, room r WHERE s.room_id == r.room_id GROUP by r.room_id
+    # # of record in each room:
+    # SELECT r.building_name, r.room_id, count(s.room_id) FROM scan s, room r WHERE s.room_id == r.room_id GROUP by r.room_id
+
     # return stats
     return
 
