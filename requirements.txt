@@ -19,4 +19,4 @@ sqlalchemy
 starlette
 uvicorn
 names
-ctdb_utility_lib==0.1.9
+ctdb-utility-lib==0.1.9
