@@ -23,8 +23,9 @@ def index():
 
 @app.get("/student/")
 def get_student():
+    global connection
+
     if connection is None:
-        global connection
         connection = connect_to_db()
     email = add_person(
         names.get_first_name(), names.get_last_name(), random.randint(0, 9999999), connection
@@ -41,8 +42,8 @@ def read_trace(building: str, room: str):
 
 @app.post("/record_data/", status_code=status.HTTP_201_CREATED)
 def store_data(email: str, room_id: str):
+    global connection
     if connection is None:
-        global connection
         connection = connect_to_db()
     response = add_scan(email, room_id, connection)
     if response == -1:
