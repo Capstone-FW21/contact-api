@@ -35,11 +35,6 @@ def get_student():
     return email
 
 
-@app.get("/class/")
-def read_trace(building: str, room: str):
-    return {"building": building, "room": room}
-
-
 @app.post("/record_data/", status_code=status.HTTP_201_CREATED)
 def store_data(email: str, room_id: str):
     global connection
