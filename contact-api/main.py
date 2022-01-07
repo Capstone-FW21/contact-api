@@ -36,11 +36,6 @@ def get_student():
     return {"first_name": fname, "last_name": lname, "email": email}
 
 
-@app.get("/class/")
-def read_trace(building: str, room: str):
-    return {"building": building, "room": room}
-
-
 @app.post("/record_data/", status_code=status.HTTP_201_CREATED)
 def store_data(email: str, room_id: str):
     global connection

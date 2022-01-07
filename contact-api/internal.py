@@ -1,4 +1,4 @@
-from ctdb_utility_lib.utility import get_person
+from ctdb_utility_lib.utility import add_room, connect_to_db
 import fastapi
 import sys
 from fastapi import FastAPI, status
@@ -8,10 +8,10 @@ from enum import Enum
 
 
 app = FastAPI()
+connection = None
+
 
 # to ensure only valid types are passed in
-
-
 class StatTypes(str, Enum):
     students = "students"
     records = "records"
@@ -93,6 +93,16 @@ def read_trace(type: StatTypes):
 
     # return stats
     return
+
+@app.get("/add_room/")
+def room(room_id: str, capacity: int, building_name: str):
+    global connection
+    if connection is None:
+        connection = connect_to_db()
+    response = add_room(room_id, capacity, building_name)
+    if response == -1:
+        raise fastapi.HTTPException(status_code=400, detail="Room Id/Building name invalid, or room already exists")
+    return "Room Added"
 
 
 @app.get(
