@@ -27,12 +27,13 @@ def get_student():
 
     if connection is None:
         connection = connect_to_db()
-    email = add_person(
-        names.get_first_name(), names.get_last_name(), random.randint(0, 9999999), connection
-    )
+    fname = names.get_first_name()
+    lname = names.get_last_name()
+    email = add_person(fname, lname, random.randint(0, 9999999), connection)
     if email is None:
         raise fastapi.HTTPException(status_code=400, detail="person already exists")
-    return email
+
+    return {"first_name": fname, "last_name": lname, "email": email}
 
 
 @app.get("/class/")
