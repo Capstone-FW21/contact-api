@@ -1,12 +1,13 @@
-from ctdb_utility_lib.utility import add_person, add_scan, connect_to_db
 import fastapi
 import sys
 import names
 import random
+import time
+
 from fastapi import FastAPI, status
 from typing import Optional, List
 from sarge import capture_stdout
-
+from ctdb_utility_lib.utility import add_person, add_scan, connect_to_db
 
 app = FastAPI()
 connection = None
@@ -24,6 +25,7 @@ def index():
 @app.get("/student/")
 def get_student():
     global connection
+    names.random.seed(time.time() * 1000)
 
     if connection is None:
         connection = connect_to_db()
