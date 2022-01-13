@@ -22,7 +22,7 @@ def index():
     return fastapi.responses.RedirectResponse(url="./docs")
 
 
-@app.get("/student/")
+@app.get("/student")
 def get_student():
     global connection
     names.random.seed(time.time() * 1000)
@@ -38,7 +38,7 @@ def get_student():
     return {"first_name": fname, "last_name": lname, "email": email}
 
 
-@app.post("/record_data/", status_code=status.HTTP_201_CREATED)
+@app.post("/record_data", status_code=status.HTTP_201_CREATED)
 def store_data(email: str, room_id: str):
     global connection
     if connection is None:
