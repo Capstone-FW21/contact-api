@@ -15,6 +15,7 @@ fastapi
 gunicorn
 pydantic
 pymysql
+psycopg2
 sqlalchemy
 starlette
 uvicorn

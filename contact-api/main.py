@@ -3,6 +3,7 @@ import sys
 import names
 import random
 import time
+import psycopg2
 
 from fastapi import FastAPI, status
 from typing import Optional, List
@@ -39,11 +40,14 @@ def get_student():
 
 
 @app.post("/record_data", status_code=status.HTTP_201_CREATED)
-def store_data(email: str, room_id: str):
+def record_data(email: str, room_id: str):
     global connection
     if connection is None:
         connection = connect_to_db()
-    response = add_scan(email, room_id, connection)
+    try:
+        response = add_scan(email, room_id, connection)
+    except psycopg2.Error as err:
+        raise fastapi.HTTPException(status_code=400, detail=err.pgerror)
     if response == -1:
         raise fastapi.HTTPException(status_code=400, detail="invalid email format")
     return "OK"
