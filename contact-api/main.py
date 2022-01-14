@@ -5,10 +5,11 @@ import random
 import time
 import psycopg2
 
-from fastapi import FastAPI, status
+from fastapi import FastAPI, status, Body
 from typing import Optional, List
 from sarge import capture_stdout
 from ctdb_utility_lib.utility import add_person, add_scan, connect_to_db
+from models import Student, Scan
 
 app = FastAPI()
 connection = None
@@ -23,8 +24,8 @@ def index():
     return fastapi.responses.RedirectResponse(url="./docs")
 
 
-@app.get("/student")
-def get_student():
+@app.get("/student", response_model=Student)
+def get_student() -> Student:
     global connection
     names.random.seed(time.time() * 1000)
 
@@ -36,17 +37,20 @@ def get_student():
     if email is None:
         raise fastapi.HTTPException(status_code=400, detail="person already exists")
 
-    return {"first_name": fname, "last_name": lname, "email": email}
+    student = Student(fname, lname, email)
+
+    return student
 
 
 @app.post("/record_data", status_code=status.HTTP_201_CREATED)
-def record_data(email: str, room_id: str):
+def record_data(scan: Scan = Body(..., embed=True)):
     global connection
     if connection is None:
         connection = connect_to_db()
     try:
-        response = add_scan(email, room_id, connection)
+        response = add_scan(scan.email, scan.room_id, connection)
     except psycopg2.Error as err:
+        connection.rollback()
         raise fastapi.HTTPException(status_code=400, detail=err.pgerror)
     if response == -1:
         raise fastapi.HTTPException(status_code=400, detail="invalid email format")
