@@ -9,7 +9,7 @@ from fastapi import FastAPI, status, Body
 from typing import Optional, List
 from sarge import capture_stdout
 from ctdb_utility_lib.utility import add_person, add_scan, connect_to_db
-from models import Student, Scan
+from .models import Scan, Student
 
 app = FastAPI()
 connection = None
