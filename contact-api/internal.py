@@ -1,5 +1,6 @@
+from sqlite3 import connect
 from ctdb_utility_lib.utility import add_room, connect_to_db, get_person
-from ctdb_utility_lib.utility import retrieve_records, retrieve_user_records, retrieve_contacts, get_people, get_records_counts, get_rooms, get_buildings, connect_to_db
+from ctdb_utility_lib.admin_utility import retrieve_records, retrieve_user_records, retrieve_contacts, get_people, get_records_count, get_rooms, get_buildings, connect_to_db
 import fastapi
 import sys
 from fastapi import FastAPI, status
@@ -27,35 +28,53 @@ def index():
     """
     return fastapi.responses.RedirectResponse(url="./docs")
 
+#returns all scans in scan table
+@app.get("/user_records/")
+def records():
+    global connection
+    if connection is None:
+        connection = connect_to_db()
+    
+    records = retrieve_records(connection)
+    if records is None:
+        raise fastapi.HTTPException(
+            status_code=400, detail="There are no scans")
+    return records
 
-@app.get("/records/")
-def read_trace(email: str, limit: int):
+#returns scans for a specific email adress
+@app.get("/user_records/")
+def user_records(email: str, limit: int):
     global connection
     if connection is None:
         connection = connect_to_db()
 
-    records = retrieve_user_records(email, connection)
-    if records == None:
+    user_record = retrieve_user_records(email, connection)
+    if user_record == None:
         raise fastapi.HTTPException(
-            status_code=400, detail="There are no records")
+            status_code=400, detail="There are no scans for this person")
+    if user_record == -1:
+        raise fastapi.HTTPException(
+            status_code=400, detail="Invalid email address")
 
-    return records
+    return user_record
 
-# check the /class/ in main.py to see how to add query parameters "/breakout/?email=bob@gmail.com&data=<....>"
-
-
+#returns all people in contact with email address
 @app.get("/breakout/")
-def read_trace(email: str, date: str):
+def breakout(email: str, date: str):
     contacted = retrieve_contacts(email, date, connection)
     if contacted == -1:
         raise fastapi.HTTPException(
-            status_code=400, detail="Invalid email format")
+            status_code=400, detail="Invalid email format, or date is greater than 14 days ago")
 
     return contacted
 
-
+#returns all entries for specific type
 @app.get("/stats/")
-def read_trace(type: StatTypes):
+def stats(type: StatTypes):
+    global connection
+    if connection is None:
+        connection = connect_to_db()
+
     match type:
         case 'student':
             result = get_people(connection)
@@ -63,10 +82,10 @@ def read_trace(type: StatTypes):
                 raise fastapi.HTTPException(
                     status_code=400, detail="No student exists")
         case 'records':
-            result = get_records_counts(connection)
+            result = get_records_count(connection)
             if result == None:
                 raise fastapi.HTTPException(
-                    status_code=400, detail="No record exists")
+                    status_code=400, detail="No scans exists")
         case 'buildings':
             result = get_buildings(connection)
             if result == None:
@@ -80,12 +99,13 @@ def read_trace(type: StatTypes):
 
     return result
 
-
+#adds room
 @app.get("/add_room/")
-def room(room_id: str, capacity: int, building_name: str):
+def add_room(room_id: str, capacity: int, building_name: str):
     global connection
     if connection is None:
         connection = connect_to_db()
+
     response = add_room(room_id, capacity, building_name)
     if response == -1:
         raise fastapi.HTTPException(
