@@ -13,7 +13,7 @@ from .models import Scan, Student
 
 app = FastAPI()
 connection = None
-random.seed(34652346)
+random.seed(time.time() * 1000)
 
 
 @app.get("/", include_in_schema=False)

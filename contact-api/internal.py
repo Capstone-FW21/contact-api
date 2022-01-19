@@ -1,4 +1,6 @@
-from ctdb_utility_lib.utility import add_room, connect_to_db
+from sqlite3 import connect
+from ctdb_utility_lib.utility import add_room, connect_to_db, get_person
+from ctdb_utility_lib.admin_utility import retrieve_records, retrieve_user_records, retrieve_contacts, get_people, get_records_count, get_rooms, get_buildings, connect_to_db
 import fastapi
 import sys
 from fastapi import FastAPI, status
@@ -10,14 +12,14 @@ from enum import Enum
 app = FastAPI()
 connection = None
 
-
+"""
 # to ensure only valid types are passed in
 class StatTypes(str, Enum):
     students = "students"
     records = "records"
     buildings = "buildings"
     rooms = "rooms"
-
+"""
 
 @app.get("/", include_in_schema=False)
 def index():
@@ -26,82 +28,91 @@ def index():
     """
     return fastapi.responses.RedirectResponse(url="./docs")
 
-
-@app.get("/records/")
-def read_trace(email: str, limit: int):  # Could add limitation
-    #records = get_records(email, limit)
-    # SQL: SELECT * FROM scan WHERE person_email = '{email}' ORDER BY scan_time DESC LIMIT '{limit}'
-    # if records == -1:
-    # raise fastapi.HTTPException(
-    # status_code=400, detail="person doesn't exists")
-    # return records
-    return
-
-# check the /class/ in main.py to see how to add query parameters "/breakout/?email=bob@gmail.com&data=<....>"
-
-
-@app.get("/breakout/")
-def read_trace(email: str, date: str):
-    # contacted = breakout(email, contacted_date)
-    # In breakout():
-    # find the rooms of the person had been in last 7 days
-    # SQL: rooms = SELCET room_id FROM scan WHERE person_email = '{email}'
-
-    # find the time from last 7 days
-    # bottom_range = contacted_date - datetime.timedelta(days=7)
-    # SOL: SELECT person_email FROM scan WHERE person_email =! '{email}'
-    #     AND room_id = '{rooms}'
-    #     AND scan_time.date() >= bottom_range.date()
-
-    # return contacted
-    return
-
-
-@app.get("/stats/")
-def read_trace(type: StatTypes):
-    # access database for valid stats
-    # stats = databasefunction(StatTypes)
-
-    # 'student type'
-    # return a list of student, # of student, record of each student
-    # list of student & record of each = SELECT person_email, count(person_email)
-    #                                    FROM scan
-    #                                    GROUP by person_email
-    # # of student = SELECT COUNT(*) FROM people
-
-    # 'records type'
-    # return # of records
-    # SQL: SELECT count(*) FROM scan
-
-    # 'buildings type'
-    # return a list of buildings, # of rooms in each building, # of records of each building, # of student visited each building
-    # list of building & # of rooms:
-    # SELECT building_name, count(building_name) FROM room GROUP by building_name
-    #
-    # # of records of each building:
-    # SELECT r.building_name, count(s.room_id) FROM scan s, room r WHERE s.room_id == r.room_id GROUP by r.building_name
-    #
-    # # of students has visited this building:
-    # SELECT r.building_name, count(DISTINCT s.person_email) FROM scan s, room r WHERE s.room_id == r.room_id GROUP by r.building_name
-
-    # 'rooms type'
-    # return a list of rooms with # of student visited, # of records in each room & the building it belongs
-    # a list of rooms with # of student visited:
-    # SELECT r.room_id, count(DISTINCT s.person_email) FROM scan s, room r WHERE s.room_id == r.room_id GROUP by r.room_id
-    # # of record in each room:
-    # SELECT r.building_name, r.room_id, count(s.room_id) FROM scan s, room r WHERE s.room_id == r.room_id GROUP by r.room_id
-
-    # return stats
-    return
-
-@app.get("/add_room/")
-def room(room_id: str, capacity: int, building_name: str):
+#returns all scans in scan table
+@app.get("/user_records/")
+def records():
     global connection
     if connection is None:
         connection = connect_to_db()
+    
+    records = retrieve_records(connection)
+    if records is None:
+        raise fastapi.HTTPException(
+            status_code=400, detail="There are no scans")
+    return records
+
+#returns scans for a specific email adress
+@app.get("/user_records/")
+def user_records(email: str, limit: int):
+    global connection
+    if connection is None:
+        connection = connect_to_db()
+
+    user_record = retrieve_user_records(email, connection)
+    if user_record == None:
+        raise fastapi.HTTPException(
+            status_code=400, detail="There are no scans for this person")
+    if user_record == -1:
+        raise fastapi.HTTPException(
+            status_code=400, detail="Invalid email address")
+
+    return user_record
+
+#returns all people in contact with email address
+@app.get("/breakout/")
+def breakout(email: str, date: str):
+    contacted = retrieve_contacts(email, date, connection)
+    if contacted == -1:
+        raise fastapi.HTTPException(
+            status_code=400, detail="Invalid email format, or date is greater than 14 days ago")
+
+    return contacted
+
+#returns all entries for specific type
+@app.get("/stats/")
+def stats(type: str):
+    global connection
+    if connection is None:
+        connection = connect_to_db()
+
+    match type:
+        case 'student':
+            result = get_people(connection)
+            if result == None:
+                raise fastapi.HTTPException(
+                    status_code=400, detail="No student exists")
+        case 'records':
+            result = get_records_count(connection)
+            if result == None:
+                raise fastapi.HTTPException(
+                    status_code=400, detail="No scans exists")
+        case 'buildings':
+            result = get_buildings(connection)
+            if result == None:
+                raise fastapi.HTTPException(
+                    status_code=400, detail="No building exists")
+        case 'rooms':
+            result = get_rooms(connection)
+            if result == None:
+                raise fastapi.HTTPException(
+                    status_code=400, detail="No room exists")
+        case _:
+            raise fastapi.HTTPException(
+                    status_code=400, detail="Invalid Stat Type")
+
+    return result
+
+#adds room
+@app.get("/add_room/")
+def add_room(room_id: str, capacity: int, building_name: str):
+    global connection
+    if connection is None:
+        connection = connect_to_db()
+
     response = add_room(room_id, capacity, building_name)
     if response == -1:
-        raise fastapi.HTTPException(status_code=400, detail="Room Id/Building name invalid, or room already exists")
+        raise fastapi.HTTPException(
+            status_code=400, detail="Room Id/Building name invalid, or room already exists")
     return "Room Added"
 
 
