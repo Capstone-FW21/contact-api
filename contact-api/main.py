@@ -37,9 +37,7 @@ def get_student() -> Student:
     if email is None:
         raise fastapi.HTTPException(status_code=400, detail="person already exists")
 
-    student = Student(fname, lname, email)
-
-    return student
+    return Student(**{"first_name": fname, "last_name": lname, "email": email})
 
 
 @app.post("/record_data", status_code=status.HTTP_201_CREATED)
