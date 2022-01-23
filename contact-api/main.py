@@ -8,7 +8,7 @@ import psycopg2
 from fastapi import FastAPI, status, Body
 from typing import Optional, List
 from sarge import capture_stdout
-from ctdb_utility_lib.utility import add_person, add_scan, connect_to_db
+from ctdb_utility_lib.utility import add_person, add_scan, connect_to_db, validate_email_format, exists_in_people
 from .models import Scan, Student
 
 app = FastAPI()
@@ -22,6 +22,26 @@ def index():
     Main index redirects to the Documentation.
     """
     return fastapi.responses.RedirectResponse(url="./docs")
+
+
+#Check if email is valid
+@app.get("/email/")
+def email(email:str):
+    global connection
+    if connection is None:
+        connection = connect_to_db()
+    
+    valid_email = validate_email_format(email)
+    if valid_email:
+        email_exist = exists_in_people(email, connection)
+        if email_exist:
+            return email #for now, return email
+        else:
+            raise fastapi.HTTPException(
+            status_code=400, detail="Email doesn't exist")
+    else:
+        raise fastapi.HTTPException(
+            status_code=400, detail="Invalid email format")
 
 
 @app.get("/student", response_model=Student)
