@@ -53,11 +53,12 @@ def get_student() -> Student:
         connection = connect_to_db()
     fname = names.get_first_name()
     lname = names.get_last_name()
-    email = add_person(fname, lname, random.randint(0, 9999999), connection)
+    personal_id = random.randint(0, 9999999)
+    email = add_person(fname, lname, personal_id, connection)
     if email is None:
         raise fastapi.HTTPException(status_code=400, detail="person already exists")
 
-    return Student(**{"first_name": fname, "last_name": lname, "email": email})
+    return Student(**{"personal_id": personal_id, "first_name": fname, "last_name": lname, "email": email})
 
 
 @app.post("/record_data", status_code=status.HTTP_201_CREATED)
