@@ -9,7 +9,7 @@ from fastapi import FastAPI, status, Body
 from typing import Optional, List
 from sarge import capture_stdout
 from ctdb_utility_lib.utility import add_person, add_scan, connect_to_db, validate_email_format, exists_in_people
-from .models import Scan, Student
+from .models import Scan, Student, Personal_QR_Scan
 
 app = FastAPI()
 connection = None
@@ -74,6 +74,21 @@ def record_data(scan: Scan = Body(..., embed=True)):
     if response == -1:
         raise fastapi.HTTPException(status_code=400, detail="invalid email format")
     return "OK"
+
+
+# @app.post("/personal_QR_Scan", status_code=status.HTTP_201_CREATED)
+# def personal_QR_Scan(scan: Personal_QR_Scan = Body(..., embed=True)):
+#     global connection
+#     if connection is None:
+#         connection = connect_to_db()
+#     try:
+#         response = add_scan(scan.email, scan.personal_id, connection)
+#     except psycopg2.Error as err:
+#         connection.rollback()
+#         raise fastapi.HTTPException(status_code=400, detail=err.pgerror)
+#     if response == -1:
+#         raise fastapi.HTTPException(status_code=400, detail="invalid email format")
+#     return "OK"
 
 
 @app.get(

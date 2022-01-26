@@ -11,3 +11,7 @@ class Student(BaseModel):
 class Scan(BaseModel):
     email: str
     room_id: str
+
+class Personal_QR_Scan(BaseModel):
+    email: str
+    personal_id: str
