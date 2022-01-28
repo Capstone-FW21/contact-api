@@ -15,7 +15,9 @@ fastapi
 gunicorn
 pydantic
 pymysql
+psycopg2
 sqlalchemy
 starlette
-uvicorn
-
+uvicorn[standard]
+names
+ctdb-utility-lib
