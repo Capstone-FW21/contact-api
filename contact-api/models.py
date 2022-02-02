@@ -13,5 +13,5 @@ class Scan(BaseModel):
     room_id: str
 
 class Personal_QR_Scan(BaseModel):
-    email: str
-    personal_id: str
+    scanner_email: str
+    id_email: str
