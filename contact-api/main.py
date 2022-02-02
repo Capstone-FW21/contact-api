@@ -82,7 +82,7 @@ def record_data(scan: Scan = Body(..., embed=True)):
 #     if connection is None:
 #         connection = connect_to_db()
 #     try:
-#         response = add_scan(scan.email, scan.personal_id, connection)
+#         response = add_scan(scan.scanner_email, scan.id_email, connection)
 #     except psycopg2.Error as err:
 #         connection.rollback()
 #         raise fastapi.HTTPException(status_code=400, detail=err.pgerror)
