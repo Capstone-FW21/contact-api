@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from enum import Enum
 
 
 class Student(BaseModel):
@@ -8,10 +9,12 @@ class Student(BaseModel):
     email: str
 
 
-class Scan(BaseModel):
-    email: str
-    room_id: str
+class ScanType(Enum):
+    PERSONAL = "PERSONAL"
+    ROOM = "ROOM"
 
-class Personal_QR_Scan(BaseModel):
-    scanner_email: str
-    id_email: str
+
+class Scan(BaseModel):
+    type: ScanType
+    email: str
+    scanned_id: str

@@ -8,8 +8,15 @@ import psycopg2
 from fastapi import FastAPI, status, Body
 from typing import Optional, List
 from sarge import capture_stdout
-from ctdb_utility_lib.utility import add_person, add_scan, connect_to_db, valid_email_format, exists_in_people
-from .models import Scan, Student, Personal_QR_Scan
+from ctdb_utility_lib.utility import (
+    add_person,
+    add_scan,
+    add_personal_scan,
+    connect_to_db,
+    valid_email_format,
+    exists_in_people,
+)
+from .models import Scan, Student, ScanType
 
 app = FastAPI()
 connection = None
@@ -24,24 +31,22 @@ def index():
     return fastapi.responses.RedirectResponse(url="./docs")
 
 
-#Check if email is valid
+# Check if email is valid
 @app.get("/email/")
-def email(email:str):
+def email(email: str):
     global connection
     if connection is None:
         connection = connect_to_db()
-    
+
     valid_email = valid_email_format(email)
     if valid_email:
         email_exist = exists_in_people(email, connection)
         if email_exist:
-            return email #for now, return email
+            return email  # for now, return email
         else:
-            raise fastapi.HTTPException(
-            status_code=400, detail="Email doesn't exist")
+            raise fastapi.HTTPException(status_code=400, detail="Email doesn't exist")
     else:
-        raise fastapi.HTTPException(
-            status_code=400, detail="Invalid email format")
+        raise fastapi.HTTPException(status_code=400, detail="Invalid email format")
 
 
 @app.get("/student", response_model=Student)
@@ -58,7 +63,9 @@ def get_student() -> Student:
     if email is None:
         raise fastapi.HTTPException(status_code=400, detail="person already exists")
 
-    return Student(**{"personal_id": personal_id, "first_name": fname, "last_name": lname, "email": email})
+    return Student(
+        **{"personal_id": personal_id, "first_name": fname, "last_name": lname, "email": email}
+    )
 
 
 @app.post("/record_data", status_code=status.HTTP_201_CREATED)
@@ -66,8 +73,15 @@ def record_data(scan: Scan = Body(..., embed=True)):
     global connection
     if connection is None:
         connection = connect_to_db()
+
+    response = -1
     try:
-        response = add_scan(scan.email, scan.room_id, 0, 0, connection) #currently sends 0,0 - change when implemented in website
+        if scan.type == ScanType.PERSONAL:
+            response = add_personal_scan(scan.email, scan.scanned_id, connection)
+        else:
+            response = add_scan(
+                scan.email, scan.scanned_id, 0, 0, connection
+            )  # currently sends 0,0 - change when implemented in website
     except psycopg2.Error as err:
         connection.rollback()
         raise fastapi.HTTPException(status_code=400, detail=err.pgerror)
