@@ -100,7 +100,7 @@ def get_room_ratio(room_id: str):
 
     if exists:
         ratio = get_room_ratio(room_id)
-        return {"valid": exists, "width": ratio[0], "height": ratio[1]}
+        return {"valid": exists, "aspect_ratio": ratio}
     else:
         raise fastapi.HTTPException(status_code=400, detail="room does not exist")
 
