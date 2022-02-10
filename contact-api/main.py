@@ -70,7 +70,7 @@ def get_student() -> Student:
 
 
 @app.post("/record_data", status_code=status.HTTP_201_CREATED)
-def record_data(scan: Scan = Body(..., embed=True)):
+def record_data(xcoord: int, ycoord: int, scan: Scan = Body(..., embed=True)):
     global connection
     if connection is None:
         connection = connect_to_db()
@@ -81,8 +81,8 @@ def record_data(scan: Scan = Body(..., embed=True)):
             response = add_personal_scan(scan.email, scan.scanned_id, connection)
         else:
             response = add_scan(
-                scan.email, scan.scanned_id, 0, 0, connection
-            )  # currently sends 0,0 - change when implemented in website
+                scan.email, scan.scanned_id, xcoord, ycoord, connection
+            )
     except psycopg2.Error as err:
         connection.rollback()
         raise fastapi.HTTPException(status_code=400, detail=err.pgerror)
