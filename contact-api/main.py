@@ -97,7 +97,7 @@ def get_room_ratio(room_id: str):
     if connection is None:
         connection = connect_to_db()
 
-    exists = exists_in_rooms(room_id)
+    exists = exists_in_rooms(room_id, connection)
 
     if exists:
         ratio = get_room_aspect_ratio(room_id, connection)
