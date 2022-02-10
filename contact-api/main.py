@@ -103,7 +103,7 @@ def get_room_ratio(room_id: str):
         ratio = get_room_aspect_ratio(room_id, connection)
         return {"valid": exists, "aspect_ratio": ratio}
     else:
-        raise fastapi.HTTPException(status_code=400, detail="room does not exist")
+        return {"valid": exists}
 
 
 
