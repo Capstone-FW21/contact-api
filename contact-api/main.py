@@ -15,6 +15,7 @@ from ctdb_utility_lib.utility import (
     connect_to_db,
     valid_email_format,
     exists_in_people,
+    exists_in_rooms,
 )
 from .models import Scan, Student, ScanType
 
@@ -32,7 +33,7 @@ def index():
 
 
 # Check if email is valid
-@app.get("/email/")
+@app.get("/email")
 def email(email: str):
     global connection
     if connection is None:
@@ -88,6 +89,21 @@ def record_data(scan: Scan = Body(..., embed=True)):
     if response == -1:
         raise fastapi.HTTPException(status_code=400, detail="invalid email format or position")
     return "OK"
+
+@app.get("/room")
+def get_room_ratio(room_id: str):
+    global connection
+    if connection is None:
+        connection = connect_to_db()
+
+    exists = exists_in_rooms(room_id)
+
+    if exists:
+        ratio = get_room_ratio(room_id)
+        return {"valid": exists, "width": ratio[0], "height": ratio[1]}
+    else:
+        raise fastapi.HTTPException(status_code=400, detail="room does not exist")
+
 
 
 # @app.post("/personal_QR_Scan", status_code=status.HTTP_201_CREATED)
