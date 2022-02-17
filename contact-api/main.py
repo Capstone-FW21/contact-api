@@ -1,3 +1,4 @@
+from http.client import HTTPException
 import fastapi
 import sys
 import names
@@ -71,7 +72,7 @@ def get_student() -> Student:
 
 
 @app.post("/record_data", status_code=status.HTTP_201_CREATED)
-def record_data(xcoord: int, ycoord: int, scan: Scan = Body(..., embed=True)):
+def record_data(xcoord: int = -1, ycoord: int = -1, scan: Scan = Body(..., embed=True)):
     global connection
     if connection is None:
         connection = connect_to_db()
@@ -81,15 +82,16 @@ def record_data(xcoord: int, ycoord: int, scan: Scan = Body(..., embed=True)):
         if scan.type == ScanType.PERSONAL:
             response = add_personal_scan(scan.email, scan.scanned_id, connection)
         else:
-            response = add_scan(
-                scan.email, scan.scanned_id, xcoord, ycoord, connection
-            )
+            if xcoord == -1 or ycoord == -1:
+                raise HTTPException(status_code=400, detail="No X/Y Coordinate found!")
+            response = add_scan(scan.email, scan.scanned_id, xcoord, ycoord, connection)
     except psycopg2.Error as err:
         connection.rollback()
         raise fastapi.HTTPException(status_code=400, detail=err.pgerror)
     if response == -1:
         raise fastapi.HTTPException(status_code=400, detail="invalid email format or position")
     return "OK"
+
 
 @app.get("/room")
 def get_room_ratio(room_id: str):
@@ -104,7 +106,6 @@ def get_room_ratio(room_id: str):
         return {"valid": exists, "aspect_ratio": ratio}
     else:
         return {"valid": exists}
-
 
 
 # @app.post("/personal_QR_Scan", status_code=status.HTTP_201_CREATED)
