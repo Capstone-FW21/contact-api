@@ -71,7 +71,7 @@ def get_student() -> Student:
 
 
 @app.post("/record_data", status_code=status.HTTP_201_CREATED)
-def record_data(xcoord: int = -1, ycoord: int = -1, scan: Scan = Body(..., embed=True)):
+def record_data(xcoord: float = -1, ycoord: float = -1, scan: Scan = Body(..., embed=True)):
     global connection
     if connection is None:
         connection = connect_to_db()
