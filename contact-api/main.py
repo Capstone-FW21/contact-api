@@ -1,4 +1,3 @@
-from http.client import HTTPException
 import fastapi
 import sys
 import names
@@ -6,7 +5,7 @@ import random
 import time
 import psycopg2
 
-from fastapi import FastAPI, status, Body
+from fastapi import FastAPI, status, Body, HTTPException
 from typing import Optional, List
 from sarge import capture_stdout
 from ctdb_utility_lib.utility import (
@@ -64,7 +63,7 @@ def get_student() -> Student:
     personal_id = random.randint(0, 9999999)
     email = add_person(fname, lname, personal_id, connection)
     if email is None:
-        raise fastapi.HTTPException(status_code=400, detail="person already exists")
+        raise HTTPException(status_code=400, detail="person already exists")
 
     return Student(
         **{"personal_id": personal_id, "first_name": fname, "last_name": lname, "email": email}
@@ -87,9 +86,9 @@ def record_data(xcoord: int = -1, ycoord: int = -1, scan: Scan = Body(..., embed
             response = add_scan(scan.email, scan.scanned_id, xcoord, ycoord, connection)
     except psycopg2.Error as err:
         connection.rollback()
-        raise fastapi.HTTPException(status_code=400, detail=err.pgerror)
+        raise HTTPException(status_code=400, detail=err.pgerror)
     if response == -1:
-        raise fastapi.HTTPException(status_code=400, detail="invalid email format or position")
+        raise HTTPException(status_code=400, detail="invalid email format or position")
     return "OK"
 
 
