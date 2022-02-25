@@ -88,8 +88,7 @@ def record_data(xcoord: float = -1, ycoord: float = -1, scan: Scan = Body(..., e
         connection.rollback()
         raise HTTPException(status_code=400, detail=err.pgerror)
     if response == -1:
-        return xcoord, ycoord, scan.email, scan.scanned_id
-        #raise HTTPException(status_code=400, detail="invalid email format or position")
+        raise HTTPException(status_code=400, detail="invalid email format or position")
     return "OK"
 
 
