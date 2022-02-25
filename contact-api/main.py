@@ -76,6 +76,8 @@ def record_data(xcoord: float = -1, ycoord: float = -1, scan: Scan = Body(..., e
     if connection is None:
         connection = connect_to_db()
 
+    scan.email = scan.email.strip()
+    scan.scanned_id = scan.scanned_id.strip()
     response = -1
     try:
         if scan.type == ScanType.PERSONAL:
