@@ -62,6 +62,7 @@ def get_student() -> Student:
     lname = names.get_last_name()
     personal_id = random.randint(0, 9999999)
     email = add_person(fname, lname, personal_id, connection)
+    email = email.lower()
     if email is None:
         raise HTTPException(status_code=400, detail="person already exists")
 
@@ -77,10 +78,12 @@ def record_data(xcoord: float = -1, ycoord: float = -1, scan: Scan = Body(..., e
         connection = connect_to_db()
 
     scan.email = scan.email.strip()
+    scan.email = scan.email.lower()
     scan.scanned_id = scan.scanned_id.strip()
     response = -1
     try:
         if scan.type == ScanType.PERSONAL:
+            scan.scanned_id = scan.scanned_id.lower()
             response = add_personal_scan(scan.email, scan.scanned_id, connection)
         else:
             if xcoord == -1 or ycoord == -1:
